@@ -1,4 +1,8 @@
-from mininet.all import *
+from mininet.net import Mininet
+from mininet.node import Controller, Node
+from mininet.link import TCLink
+from mininet.log import setLogLevel, info
+from mininet.net import CLI
 
 def basic_topology():
     net = Mininet(controller=Controller, link=TCLink)
