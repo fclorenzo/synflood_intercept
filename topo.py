@@ -33,12 +33,12 @@ def basic_topology():
     router.cmd('sysctl -w net.ipv4.ip_forward=1')
 
     # Test connectivity
-    info('*** Testing connectivity\n')
-    net.pingAll()
+    #info('*** Testing connectivity\n')
+    #net.pingAll()
 
     # Stop the network
-    info('*** Stopping network\n')
-    net.stop()
+    #info('*** Stopping network\n')
+    #net.stop()
 
 if __name__ == '__main__':
     setLogLevel('info')
