@@ -25,9 +25,11 @@ def basic_topology():
     net.addLink(h1, router, intfName2='r1-eth0', params2={'ip': '192.168.1.1/24'})
     net.addLink(h2, router, intfName2='r1-eth1', params2={'ip': '192.168.2.1/24'})
 
-    # Configure IP forwarding on the router
+    # Configure IP forwarding and disable reverse path filtering on the router
     info('*** Configuring router\n')
     router.cmd('sysctl -w net.ipv4.ip_forward=1')
+    router.cmd('sysctl -w net.ipv4.conf.all.rp_filter=0')
+    router.cmd('sysctl -w net.ipv4.conf.default.rp_filter=0')
 
     net.start()
     CLI(net)
