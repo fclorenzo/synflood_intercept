@@ -1,23 +1,23 @@
+from scapy.all import *
 import socket
 
 def tcp_server():
-    host = '0.0.0.0'  # Listen on all interfaces
-    port = 12345
+    server_ip = "192.168.2.2"  # h2's IP address
+    server_port = 12345  # Port for the server to listen on
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-        server_socket.bind((host, port))
-        server_socket.listen(1)
-        print(f"TCP Server listening on port {port}...")
+    print(f"[*] Starting TCP server on {server_ip}:{server_port}...")
+    
+    # Sniff incoming packets to simulate TCP server
+    def handle_packet(packet):
+        if packet.haslayer(TCP) and packet[TCP].dport == server_port:
+            payload = bytes(packet[TCP].payload).decode('utf-8', errors='ignore')
+            print(f"[+] Received data: {payload}")
+            
+            # Send back an acknowledgment
+            response = IP(dst=packet[IP].src) / TCP(dport=packet[TCP].sport, sport=server_port, flags="PA", seq=packet[TCP].ack, ack=packet[TCP].seq + len(payload)) / "ACK: " + payload
+            send(response, verbose=False)
+    
+    sniff(filter=f"tcp port {server_port}", prn=handle_packet)
 
-        conn, addr = server_socket.accept()
-        with conn:
-            print(f"Connection from {addr}")
-            data = conn.recv(1024).decode('utf-8')
-            print(f"Received: {data}")
-            if data:
-                response = "Message received"
-                conn.send(response.encode('utf-8'))
-                print("Response sent back to client.")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     tcp_server()
