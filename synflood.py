@@ -3,6 +3,7 @@ import random
 import time
 
 def syn_flood():
+    time.sleep(60)
     server_ip = "192.168.2.2"  # h2's IP address
     server_port = 12345  # Port to attack
 
