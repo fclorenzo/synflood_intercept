@@ -6,6 +6,7 @@ def syn_flood():
     server_ip = "192.168.2.2"  # h2's IP address
     server_port = 12345  # Port to attack
 
+    time.sleep(60)
     print(f"[*] Starting SYN flood attack on {server_ip}:{server_port}...")
 
     while True:
