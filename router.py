@@ -10,9 +10,9 @@ blocked_ips = set()  # Blocked IPs
 
 # Thresholds
 SYN_SYNACK_RATIO_THRESHOLD = 5  # SYNs to SYN-ACKs
-SYN_RATE_THRESHOLD = 100  # SYNs per second per source IP
-HALF_OPEN_TIMEOUT = 5  # Timeout for half-open connections (in seconds)
-CHECK_INTERVAL = 1  # Interval in seconds to check thresholds
+SYN_RATE_THRESHOLD = 10  # SYNs per second per source IP
+HALF_OPEN_TIMEOUT = 2  # Timeout for half-open connections (in seconds)
+CHECK_INTERVAL = 0.5  # Interval in seconds to check thresholds
 
 
 def monitor_packets(packet):
