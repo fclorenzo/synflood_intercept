@@ -1,4 +1,4 @@
-#!binbash
+#!/usr/bin/bash
 
 # Start the Mininet topology
 #echo [] Starting Mininet topology...
