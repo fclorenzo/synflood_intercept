@@ -18,7 +18,7 @@ FLOOD_PID=$!
 
 # Run the router detection script on r1
 #echo [] Starting the detection script on r1...
-sudo mnexec -a $(sudo mnexec -x r1 echo $$) python3 router.py &
+sudo mnexec -a $(sudo mnexec -x r1 echo $$) python3 router.py
 ROUTER_PID=$!
 
 # Wait for user to stop
