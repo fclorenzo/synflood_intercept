@@ -5,13 +5,12 @@ import time
 # Data structures
 syn_to_synack = defaultdict(lambda: [0, 0])  # SYN to SYN-ACK ratio tracker
 syn_rate = defaultdict(int)  # SYN packet rate per source IP
-half_open = {}  # Half-open connections with state tracking
+flag_tracker = defaultdict(lambda: {"syn_rate_flag": False, "syn_ratio_flag": False})  # Tracks flags for each IP
 blocked_ips = set()  # Blocked IPs
 
 # Thresholds
 SYN_SYNACK_RATIO_THRESHOLD = 3  # Lower ratio for easier detection during testing
 SYN_RATE_THRESHOLD = 5  # Very low threshold for SYN rate (testing only)
-HALF_OPEN_TIMEOUT = 2  # Timeout for half-open connections (in seconds)
 CHECK_INTERVAL = 1  # Interval in seconds to check thresholds
 
 
@@ -34,23 +33,12 @@ def monitor_packets(packet):
         if tcp.flags == "S":
             syn_rate[ip.src] += 1
             syn_to_synack[(ip.dst, tcp.dport)][0] += 1  # Increment SYN count
-            if (ip.src, tcp.dport) not in half_open:
-                half_open[(ip.src, tcp.dport)] = {'state': 'SYN_SENT', 'timestamp': time.time()}
             print(f"[INFO] SYN from {ip.src} to {ip.dst}:{tcp.dport}")
 
         # Track SYN-ACK packets
         if tcp.flags == "SA":
-            if (ip.src, tcp.sport) in half_open:
-                half_open[(ip.src, tcp.sport)]['state'] = 'SYN_ACK_RECEIVED'
-                half_open[(ip.src, tcp.sport)]['timestamp'] = time.time()
             syn_to_synack[(ip.src, tcp.sport)][1] += 1  # Increment SYN-ACK count
             print(f"[INFO] SYN-ACK from {ip.src} to {ip.dst}:{tcp.dport}")
-
-        # Track ACK packets (connection is considered established)
-        if tcp.flags == "A":
-            if (ip.src, tcp.sport) in half_open:
-                del half_open[(ip.src, tcp.sport)]  # Remove from half-open tracker
-            print(f"[INFO] ACK from {ip.src} to {ip.dst}:{tcp.dport}")
 
 
 def check_thresholds():
@@ -63,6 +51,9 @@ def check_thresholds():
     for ip, count in syn_rate.items():
         if count > SYN_RATE_THRESHOLD:
             print(f"[ALERT] High SYN rate detected for {ip} ({count} SYNs/sec)")
+            flag_tracker[ip]["syn_rate_flag"] = True  # Set the SYN rate flag
+        else:
+            flag_tracker[ip]["syn_rate_flag"] = False  # Reset the flag if not met
     syn_rate.clear()  # Reset SYN rate counter
 
     # Check SYN to SYN-ACK ratio
@@ -70,16 +61,15 @@ def check_thresholds():
         syn_count, synack_count = counts
         if synack_count == 0 or (syn_count / synack_count) > SYN_SYNACK_RATIO_THRESHOLD:
             print(f"[ALERT] High SYN/SYN-ACK ratio for {key}: {syn_count}/{synack_count}")
+            flag_tracker[key[0]]["syn_ratio_flag"] = True  # Set the SYN ratio flag
+        else:
+            flag_tracker[key[0]]["syn_ratio_flag"] = False  # Reset the flag if not met
 
-    # Check for half-open connection timeouts
-    current_time = time.time()
-    for (ip, port), info in list(half_open.items()):  # Use list() to safely modify dict while iterating
-        if info['state'] == 'SYN_ACK_RECEIVED' and (current_time - info['timestamp']) > HALF_OPEN_TIMEOUT:
-            print(f"[ALERT] Half-open connection timeout for {ip}:{port}")
-            if ip not in blocked_ips:
-                print(f"[ACTION] Blocking IP: {ip}")
-                blocked_ips.add(ip)
-            del half_open[(ip, port)]  # Remove the timed-out entry
+    # Block IPs if both flags are true
+    for ip, flags in flag_tracker.items():
+        if flags["syn_rate_flag"] and flags["syn_ratio_flag"] and ip not in blocked_ips:
+            print(f"[ACTION] Blocking IP: {ip}")
+            blocked_ips.add(ip)  # Block the IP
 
     # Log current blocked IPs
     if blocked_ips:
@@ -87,7 +77,7 @@ def check_thresholds():
 
 
 if __name__ == "__main__":
-    print("[*] Starting SYN flood detection with lower thresholds for testing...")
+    print("[*] Starting SYN flood detection with dual-flag logic...")
     try:
         # Start packet sniffing in the background
         sniff(filter="tcp", prn=monitor_packets, store=False, timeout=CHECK_INTERVAL)
