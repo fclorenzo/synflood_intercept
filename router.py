@@ -9,10 +9,10 @@ half_open = {}  # Half-open connections with state tracking
 blocked_ips = set()  # Blocked IPs
 
 # Thresholds
-SYN_SYNACK_RATIO_THRESHOLD = 5  # SYNs to SYN-ACKs
-SYN_RATE_THRESHOLD = 10  # SYNs per second per source IP
+SYN_SYNACK_RATIO_THRESHOLD = 3  # Lower ratio for easier detection during testing
+SYN_RATE_THRESHOLD = 5  # Very low threshold for SYN rate (testing only)
 HALF_OPEN_TIMEOUT = 2  # Timeout for half-open connections (in seconds)
-CHECK_INTERVAL = 0.5  # Interval in seconds to check thresholds
+CHECK_INTERVAL = 1  # Interval in seconds to check thresholds
 
 
 def monitor_packets(packet):
@@ -34,8 +34,9 @@ def monitor_packets(packet):
         if tcp.flags == "S":
             syn_rate[ip.src] += 1
             syn_to_synack[(ip.dst, tcp.dport)][0] += 1  # Increment SYN count
-            # Add a new connection to the half-open tracker
-            half_open[(ip.src, tcp.dport)] = {'state': 'SYN_SENT', 'timestamp': time.time()}
+            if (ip.src, tcp.dport) not in half_open:
+                half_open[(ip.src, tcp.dport)] = {'state': 'SYN_SENT', 'timestamp': time.time()}
+            print(f"[INFO] SYN from {ip.src} to {ip.dst}:{tcp.dport}")
 
         # Track SYN-ACK packets
         if tcp.flags == "SA":
@@ -43,11 +44,13 @@ def monitor_packets(packet):
                 half_open[(ip.src, tcp.sport)]['state'] = 'SYN_ACK_RECEIVED'
                 half_open[(ip.src, tcp.sport)]['timestamp'] = time.time()
             syn_to_synack[(ip.src, tcp.sport)][1] += 1  # Increment SYN-ACK count
+            print(f"[INFO] SYN-ACK from {ip.src} to {ip.dst}:{tcp.dport}")
 
         # Track ACK packets (connection is considered established)
         if tcp.flags == "A":
             if (ip.src, tcp.sport) in half_open:
                 del half_open[(ip.src, tcp.sport)]  # Remove from half-open tracker
+            print(f"[INFO] ACK from {ip.src} to {ip.dst}:{tcp.dport}")
 
 
 def check_thresholds():
@@ -60,7 +63,6 @@ def check_thresholds():
     for ip, count in syn_rate.items():
         if count > SYN_RATE_THRESHOLD:
             print(f"[ALERT] High SYN rate detected for {ip} ({count} SYNs/sec)")
-
     syn_rate.clear()  # Reset SYN rate counter
 
     # Check SYN to SYN-ACK ratio
@@ -85,7 +87,7 @@ def check_thresholds():
 
 
 if __name__ == "__main__":
-    print("[*] Starting SYN flood detection with improved half-open tracking...")
+    print("[*] Starting SYN flood detection with lower thresholds for testing...")
     try:
         # Start packet sniffing in the background
         sniff(filter="tcp", prn=monitor_packets, store=False, timeout=CHECK_INTERVAL)
