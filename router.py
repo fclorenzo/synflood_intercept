@@ -5,13 +5,13 @@ import time
 # Data structures
 syn_to_synack = defaultdict(lambda: [0, 0])  # SYN to SYN-ACK ratio tracker
 syn_rate = defaultdict(int)  # SYN packet rate per source IP
-half_open = defaultdict(int)  # Half-open connections per source IP
+half_open = {}  # Half-open connections with state tracking
 blocked_ips = set()  # Blocked IPs
 
 # Thresholds
 SYN_SYNACK_RATIO_THRESHOLD = 5  # SYNs to SYN-ACKs
 SYN_RATE_THRESHOLD = 100  # SYNs per second per source IP
-HALF_OPEN_THRESHOLD = 50  # Half-open connections per source IP
+HALF_OPEN_TIMEOUT = 5  # Timeout for half-open connections (in seconds)
 CHECK_INTERVAL = 1  # Interval in seconds to check thresholds
 
 
@@ -30,20 +30,24 @@ def monitor_packets(packet):
             print(f"[BLOCKED] Dropping packet from {ip.src}")
             return
 
-        # Count SYN packets
+        # Track SYN packets
         if tcp.flags == "S":
             syn_rate[ip.src] += 1
             syn_to_synack[(ip.dst, tcp.dport)][0] += 1  # Increment SYN count
-            half_open[(ip.src, tcp.dport)] += 1  # Increment half-open count
+            # Add a new connection to the half-open tracker
+            half_open[(ip.src, tcp.dport)] = {'state': 'SYN_SENT', 'timestamp': time.time()}
 
-        # Count SYN-ACK packets
+        # Track SYN-ACK packets
         if tcp.flags == "SA":
+            if (ip.src, tcp.sport) in half_open:
+                half_open[(ip.src, tcp.sport)]['state'] = 'SYN_ACK_RECEIVED'
+                half_open[(ip.src, tcp.sport)]['timestamp'] = time.time()
             syn_to_synack[(ip.src, tcp.sport)][1] += 1  # Increment SYN-ACK count
 
-        # Count ACK packets to close connections
+        # Track ACK packets (connection is considered established)
         if tcp.flags == "A":
             if (ip.src, tcp.sport) in half_open:
-                half_open[(ip.src, tcp.sport)] -= 1  # Decrement half-open count
+                del half_open[(ip.src, tcp.sport)]  # Remove from half-open tracker
 
 
 def check_thresholds():
@@ -65,13 +69,15 @@ def check_thresholds():
         if synack_count == 0 or (syn_count / synack_count) > SYN_SYNACK_RATIO_THRESHOLD:
             print(f"[ALERT] High SYN/SYN-ACK ratio for {key}: {syn_count}/{synack_count}")
 
-    # Check half-open connections
-    for (ip, port), count in half_open.items():
-        if count > HALF_OPEN_THRESHOLD:
-            print(f"[ALERT] High half-open connections for {ip}:{port} ({count} connections)")
+    # Check for half-open connection timeouts
+    current_time = time.time()
+    for (ip, port), info in list(half_open.items()):  # Use list() to safely modify dict while iterating
+        if info['state'] == 'SYN_ACK_RECEIVED' and (current_time - info['timestamp']) > HALF_OPEN_TIMEOUT:
+            print(f"[ALERT] Half-open connection timeout for {ip}:{port}")
             if ip not in blocked_ips:
                 print(f"[ACTION] Blocking IP: {ip}")
-                blocked_ips.add(ip)  # Add IP to blocked list
+                blocked_ips.add(ip)
+            del half_open[(ip, port)]  # Remove the timed-out entry
 
     # Log current blocked IPs
     if blocked_ips:
@@ -79,7 +85,7 @@ def check_thresholds():
 
 
 if __name__ == "__main__":
-    print("[*] Starting SYN flood detection...")
+    print("[*] Starting SYN flood detection with improved half-open tracking...")
     try:
         # Start packet sniffing in the background
         sniff(filter="tcp", prn=monitor_packets, store=False, timeout=CHECK_INTERVAL)
