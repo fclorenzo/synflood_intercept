@@ -3,7 +3,6 @@ import random
 import time
 
 def syn_flood():
-    time.sleep(60)
     server_ip = "192.168.2.2"  # h2's IP address
     server_port = 12345  # Port to attack
 
@@ -30,6 +29,7 @@ def syn_flood():
 
 if __name__ == "__main__":
     #try:
+    time.sleep(60)
     syn_flood()
     #except KeyboardInterrupt:
         #print("\n[!] Stopping SYN flood attack.")
