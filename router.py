@@ -28,12 +28,12 @@ def monitor_packets(packet):
 
         # Track SYN packets
         if tcp.flags == "S":
-            syn_to_synack[(ip.dst, tcp.dport)][0] += 1  # Increment SYN count
+            syn_to_synack[(ip.src, tcp.dport)][0] += 1  # Increment SYN count
             print(f"[INFO] SYN from {ip.src} to {ip.dst}:{tcp.dport}")
 
         # Track SYN-ACK packets
         if tcp.flags == "SA":
-            syn_to_synack[(ip.src, tcp.sport)][1] += 1  # Increment SYN-ACK count
+            syn_to_synack[(ip.dst, tcp.sport)][1] += 1  # Increment SYN-ACK count
             print(f"[INFO] SYN-ACK from {ip.src} to {ip.dst}:{tcp.dport}")
 
 
@@ -48,9 +48,10 @@ def check_thresholds():
         syn_count, synack_count = counts
         if synack_count == 0 or (syn_count / synack_count) > SYN_SYNACK_RATIO_THRESHOLD:
             print(f"[ALERT] High SYN/SYN-ACK ratio for {key}: {syn_count}/{synack_count}")
-            #if key[0] not in blocked_ips:  # Block the source IP based on destination ratio
-            print(f"[ACTION] Blocking IP: {key[0]}")
-            blocked_ips.add(key[0])  # Block the IP
+            src_ip = key[0]  # Extract the source IP from the key
+            if src_ip not in blocked_ips:  # Block the source IP based on the ratio
+                print(f"[ACTION] Blocking IP: {src_ip}")
+                blocked_ips.add(src_ip)  # Block the IP
 
     # Log current blocked IPs
     if blocked_ips:
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     print("[*] Starting SYN flood detection using only SYN/SYN-ACK ratio...")
     try:
         # Start packet sniffing in the background
-        sniff(filter="tcp", prn=monitor_packets, store=False, timeout=CHECK_INTERVAL)
+        sniff(filter="tcp", prn=monitor_packets, store=False, timeout=0.1)
         while True:
             time.sleep(CHECK_INTERVAL)
             check_thresholds()
