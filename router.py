@@ -1,5 +1,6 @@
 from scapy.all import *
 from collections import defaultdict
+import threading
 import time
 
 # Data structures
@@ -37,6 +38,14 @@ def monitor_packets(packet):
             print(f"[INFO] SYN-ACK packet tracked: {ip.src} -> {ip.dst}:{tcp.dport}")
 
 
+def sniff_packets():
+    """
+    Function to run sniffing in a separate thread.
+    """
+    print("[*] Starting packet sniffing...")
+    sniff(filter="tcp", prn=monitor_packets, store=False, timeout=0.1)
+
+
 def check_thresholds():
     """
     Function to check thresholds for SYN flood detection and block offending IPs.
@@ -45,7 +54,8 @@ def check_thresholds():
 
     print(f"[DEBUG] Checking thresholds...")
     print(f"[DEBUG] Current syn_to_synack state: {dict(syn_to_synack)}")
-    
+    print(f"[DEBUG] Current blocked IPs: {blocked_ips}")
+
     # Check SYN to SYN-ACK ratio
     for key, counts in syn_to_synack.items():
         syn_count, synack_count = counts
@@ -61,18 +71,17 @@ def check_thresholds():
             else:
                 print(f"[DEBUG] {src_ip} is already blocked.")
 
-    # Log current blocked IPs
-    if blocked_ips:
-        print(f"[INFO] Currently blocked IPs: {blocked_ips}")
-
 
 if __name__ == "__main__":
     print("[*] Starting SYN flood detection with enhanced debugging...")
     try:
-        # Start packet sniffing in the background
-        sniff(filter="tcp", prn=monitor_packets, store=False, timeout=0.1)
+        # Start sniffing in a separate thread
+        sniff_thread = threading.Thread(target=sniff_packets, daemon=True)
+        sniff_thread.start()
+
+        # Run the threshold checking loop
         while True:
-            #time.sleep(CHECK_INTERVAL)
+            time.sleep(CHECK_INTERVAL)
             check_thresholds()
     except KeyboardInterrupt:
         print("\n[!] Stopping SYN flood detection.")
