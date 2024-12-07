@@ -30,12 +30,17 @@ def monitor_packets(packet):
         # Track SYN packets
         if tcp.flags == "S":
             syn_to_synack[(ip.src, tcp.dport)][0] += 1  # Increment SYN count
+            time.sleep(0.01)  # Artificial delay for debugging
             print(f"[INFO] SYN packet tracked: {ip.src} -> {ip.dst}:{tcp.dport}")
+            print(f"[DEBUG] Updated syn_to_synack: {dict(syn_to_synack)}")
+
 
         # Track SYN-ACK packets
         if tcp.flags == "SA":
             syn_to_synack[(ip.dst, tcp.sport)][1] += 1  # Increment SYN-ACK count
+            time.sleep(0.01)  # Artificial delay for debugging
             print(f"[INFO] SYN-ACK packet tracked: {ip.src} -> {ip.dst}:{tcp.dport}")
+            print(f"[DEBUG] Updated syn_to_synack: {dict(syn_to_synack)}")
 
 
 def sniff_packets():
@@ -64,10 +69,12 @@ def check_thresholds():
         if synack_count == 0 or (syn_count / synack_count) > SYN_SYNACK_RATIO_THRESHOLD:
             print(f"[ALERT] High SYN/SYN-ACK ratio for {key}: {syn_count}/{synack_count}")
             src_ip = key[0]  # Extract the source IP from the key
+            print(f"[DEBUG] src_ip extracted: {src_ip}")
             print(f"[DEBUG] Checking if {src_ip} is already blocked...")
             if src_ip not in blocked_ips:  # Block the source IP based on the ratio
                 print(f"[ACTION] Blocking IP: {src_ip}")
                 blocked_ips.add(src_ip)  # Block the IP
+                time.sleep(0.1)
             else:
                 print(f"[DEBUG] {src_ip} is already blocked.")
 
