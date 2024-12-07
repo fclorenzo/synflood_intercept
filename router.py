@@ -8,7 +8,7 @@ blocked_ips = set()  # Blocked IPs
 
 # Thresholds
 SYN_SYNACK_RATIO_THRESHOLD = 3  # Lower ratio for easier detection during testing
-CHECK_INTERVAL = 1  # Interval in seconds to check thresholds
+CHECK_INTERVAL = 0.25  # Interval in seconds to check thresholds
 
 
 def monitor_packets(packet):
