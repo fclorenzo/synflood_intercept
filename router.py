@@ -82,6 +82,7 @@ if __name__ == "__main__":
         # Run the threshold checking loop
         while True:
             time.sleep(CHECK_INTERVAL)
+            print("running treshold loop...")
             check_thresholds()
     except KeyboardInterrupt:
         print("\n[!] Stopping SYN flood detection.")
