@@ -48,9 +48,9 @@ def check_thresholds():
         syn_count, synack_count = counts
         if synack_count == 0 or (syn_count / synack_count) > SYN_SYNACK_RATIO_THRESHOLD:
             print(f"[ALERT] High SYN/SYN-ACK ratio for {key}: {syn_count}/{synack_count}")
-            if key[0] not in blocked_ips:  # Block the source IP based on destination ratio
-                print(f"[ACTION] Blocking IP: {key[0]}")
-                blocked_ips.add(key[0])  # Block the IP
+            #if key[0] not in blocked_ips:  # Block the source IP based on destination ratio
+            print(f"[ACTION] Blocking IP: {key[0]}")
+            blocked_ips.add(key[0])  # Block the IP
 
     # Log current blocked IPs
     if blocked_ips:
