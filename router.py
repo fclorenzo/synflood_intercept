@@ -72,7 +72,7 @@ if __name__ == "__main__":
         # Start packet sniffing in the background
         sniff(filter="tcp", prn=monitor_packets, store=False, timeout=0.1)
         while True:
-            time.sleep(CHECK_INTERVAL)
+            #time.sleep(CHECK_INTERVAL)
             check_thresholds()
     except KeyboardInterrupt:
         print("\n[!] Stopping SYN flood detection.")
