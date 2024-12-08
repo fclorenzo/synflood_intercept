@@ -1,17 +1,19 @@
 from scapy.all import *
+from collections import defaultdict
 import threading
+import time
 
-blocked_ips = []
+# Data structures
+blocked_ips = []  # List to store blocked IPs
 SYN_SYNACK_RATIO_THRESHOLD = 3  # Lower ratio for easier detection during testing
 CHECK_INTERVAL = 1  # Interval in seconds to check thresholds
-syn_to_synack = {}  # Dictionary to store each host ip and it's syn count and syn-ack ratio
+syn_to_synack = defaultdict(lambda: [0, 0])  # Default value: [SYN count, SYN-ACK count]
 
 
 def monitor_packets(packet):
     """
     Function to process sniffed packets and update tracking data.
     """
-
     global blocked_ips
 
     if packet.haslayer(TCP):
@@ -26,24 +28,14 @@ def monitor_packets(packet):
         # Track SYN packets
         if tcp.flags == "S":
             syn_to_synack[ip.src][0] += 1  # Increment SYN count
-            print(
-                f"[info] SYN packet tracked: {ip.src} -> {ip.dst}:{tcp.dport}",
-                flush=True,
-            )
-            print(
-                f"[info] Updated syn_to_synack: {dict(syn_to_synack)}", file=sys.stderr
-            )
+            print(f"[INFO] SYN packet tracked: {ip.src} -> {ip.dst}:{tcp.dport}", flush=True)
+            print(f"[INFO] Updated syn_to_synack: {dict(syn_to_synack)}", flush=True)
 
         # Track SYN-ACK packets
         if tcp.flags == "SA":
             syn_to_synack[ip.src][1] += 1  # Increment SYN-ACK count
-            print(
-                f"[info] SYN-ACK packet tracked: {ip.src} -> {ip.dst}:{tcp.dport}",
-                flush=True,
-            )
-            print(
-                f"[info] Updated syn_to_synack: {dict(syn_to_synack)}", file=sys.stderr
-            )
+            print(f"[INFO] SYN-ACK packet tracked: {ip.src} -> {ip.dst}:{tcp.dport}", flush=True)
+            print(f"[INFO] Updated syn_to_synack: {dict(syn_to_synack)}", flush=True)
 
 
 def check_thresholds():
@@ -52,40 +44,31 @@ def check_thresholds():
     """
     global blocked_ips
 
-    print(f"[info] Checking thresholds...", flush=True)
-    print(f"[info] Current syn_to_synack state: {dict(syn_to_synack)}", file=sys.stderr)
-    print(f"[info] Current blocked IPs: {blocked_ips}", flush=True)
+    print(f"[INFO] Checking thresholds...", flush=True)
+    print(f"[INFO] Current syn_to_synack state: {dict(syn_to_synack)}", flush=True)
+    print(f"[INFO] Current blocked IPs: {blocked_ips}", flush=True)
 
     # Check SYN to SYN-ACK ratio
-    for key, counts in syn_to_synack.items():
+    for src_ip, counts in syn_to_synack.items():
         syn_count, synack_count = counts
 
-        print(
-            f"[info] Evaluating key: {key}, SYN count: {syn_count}, SYN-ACK count: {synack_count}",
-            flush=True,
-        )
+        print(f"[INFO] Evaluating IP: {src_ip}, SYN count: {syn_count}, SYN-ACK count: {synack_count}", flush=True)
 
         if synack_count == 0 or (syn_count / synack_count) > SYN_SYNACK_RATIO_THRESHOLD:
-            print(
-                f"[ALERT] High SYN/SYN-ACK ratio for {key}: {syn_count}/{synack_count}",
-                flush=True,
-            )
-            src_ip = key[0]  # Extract the source IP from the key
-            print(f"[info] src_ip extracted: {src_ip}", flush=True)
-            print(f"[info] Checking if {src_ip} is already blocked...", flush=True)
+            print(f"[ALERT] High SYN/SYN-ACK ratio for {src_ip}: {syn_count}/{synack_count}", flush=True)
 
             if src_ip not in blocked_ips:
                 print(f"[ACTION] Blocking IP: {src_ip}", flush=True)
-                blocked_ips.add(src_ip)  # Block the IP
-                time.sleep(0.1)
+                blocked_ips.append(src_ip)  # Append to list
             else:
-                print(f"[info] {src_ip} is already blocked.", flush=True)
+                print(f"[INFO] {src_ip} is already blocked.", flush=True)
 
 
 if __name__ == "__main__":
     sniff_thread = threading.Thread(
-        target=sniff(filter="tcp", prn=monitor_packets, store=False), daemon=True
+        target=lambda: sniff(filter="tcp", prn=monitor_packets, store=False), daemon=True
     )
-    sniff_thread.start
+    sniff_thread.start()  # Start the sniffing thread
     while True:
-        check_thresholds()
+        check_thresholds()  # Check thresholds periodically
+        time.sleep(CHECK_INTERVAL)  # Wait before rechecking
