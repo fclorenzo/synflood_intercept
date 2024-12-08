@@ -5,7 +5,7 @@ import time
 
 # Data structures
 blocked_ips = []  # List to store blocked IPs
-SYN_SYNACK_RATIO_THRESHOLD = 10  # Lower ratio for easier detection during testing
+SYN_SYNACK_RATIO_THRESHOLD = 3  # Lower ratio for easier detection during testing
 CHECK_INTERVAL = 1  # Interval in seconds to check thresholds
 syn_to_synack = defaultdict(lambda: [0, 0])  # Default value: [SYN count, SYN-ACK count]
 
@@ -32,23 +32,26 @@ def monitor_packets(packet):
         # If the source IP is blocked, send RST packets and drop the packet
         if ip.src in blocked_ips:
             print(f"[BLOCKED] Dropping packet from {ip.src}", flush=True)
-            # Send RST to the client
-            send_rst("192.168.1.1", ip.src, tcp.dport, tcp.sport)
-            # Send RST to the server
-            send_rst(ip.src, ip.dst, tcp.sport, tcp.dport)
+            send_rst(ip.dst, ip.src, tcp.dport, tcp.sport)  # RST to client
+            send_rst(ip.src, ip.dst, tcp.sport, tcp.dport)  # RST to server
             return
 
         # Track SYN packets
         if tcp.flags == "S":
             syn_to_synack[ip.src][0] += 1  # Increment SYN count
             print(f"[INFO] SYN packet tracked: {ip.src} -> {ip.dst}:{tcp.dport}", flush=True)
-            print(f"[INFO] Updated syn_to_synack: {dict(syn_to_synack)}", flush=True)
 
         # Track SYN-ACK packets
         if tcp.flags == "SA":
-            syn_to_synack[ip.src][1] += 1  # Increment SYN-ACK count
+            syn_to_synack[ip.dst][1] += 1  # Increment SYN-ACK count
             print(f"[INFO] SYN-ACK packet tracked: {ip.src} -> {ip.dst}:{tcp.dport}", flush=True)
-            print(f"[INFO] Updated syn_to_synack: {dict(syn_to_synack)}", flush=True)
+
+        # Reset counts on ACK packets
+        if tcp.flags == "A":
+            if ip.src in syn_to_synack:
+                syn_to_synack[ip.src] = [0, 0]  # Reset SYN and SYN-ACK counts
+                print(f"[INFO] ACK packet received: {ip.src} -> {ip.dst}:{tcp.dport}")
+                print(f"[INFO] Reset counts for {ip.src}: {dict(syn_to_synack)}", flush=True)
 
 
 def check_thresholds():
