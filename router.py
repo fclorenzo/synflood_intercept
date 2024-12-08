@@ -22,6 +22,7 @@ def monitor_packets(packet):
     if packet.haslayer(TCP):
         tcp = packet[TCP]
         ip = packet[IP]
+        print("f{ip.type}")
 
         # If the source IP is blocked, drop the packet
         if ip.src in blocked_ips:
@@ -38,7 +39,7 @@ def monitor_packets(packet):
 
         # Track SYN-ACK packets
         if tcp.flags == "SA":
-            syn_to_synack[(ip.dst, tcp.sport)][1] += 1  # Increment SYN-ACK count
+            syn_to_synack[(ip.src, tcp.sport)][1] += 1  # Increment SYN-ACK count
             time.sleep(0.01)  # Artificial delay for debugging
             print(f"[INFO_DEBUG] SYN-ACK packet tracked: {ip.src} -> {ip.dst}:{tcp.dport}", flush=True)
             print(f"[INFO_DEBUG] Updated syn_to_synack: {dict(syn_to_synack)}", file=sys.stderr)
