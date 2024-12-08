@@ -5,7 +5,7 @@ import time
 
 # Data structures
 blocked_ips = []  # List to store blocked IPs
-SYN_SYNACK_RATIO_THRESHOLD = 3  # Lower ratio for easier detection during testing
+SYN_SYNACK_RATIO_THRESHOLD = 10  # Lower ratio for easier detection during testing
 CHECK_INTERVAL = 1  # Interval in seconds to check thresholds
 syn_to_synack = defaultdict(lambda: [0, 0])  # Default value: [SYN count, SYN-ACK count]
 
