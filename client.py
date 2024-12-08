@@ -39,7 +39,7 @@ def send_legit_tcp_connections():
                     send(final_ack, verbose=False)
                     print("[INFO] Connection terminated gracefully.")
 
-            time.sleep(1)  # Wait before sending the next connection
+            time.sleep(10)  # Wait before sending the next connection
         except Exception as e:
             print(f"[ERROR] Error sending legitimate connection: {e}")
 
