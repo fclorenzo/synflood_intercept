@@ -9,7 +9,7 @@ This repository contains a computer networks assignment project for detecting an
 ### **Table of Contents**
 
 1. [Introduction](#1-introduction)
-2. [Features Implemented](#2-features-implemented)
+2. [Implemented Features](#2-implemented-features)
 3. [System Requirements](#3-system-requirements)
 4. [How to Run](#4-how-to-run)
 5. [Configuration Parameters](#5-configuration-parameters)
@@ -20,13 +20,13 @@ This repository contains a computer networks assignment project for detecting an
 
 ### **1. Introduction**
 
-A **SYN flood attack** is a type of denial-of-service (DoS) attack that exploits the TCP three-way handshake by overwhelming a server with a high number of incomplete connection requests. This attack can exhaust server resources, making it unable to handle legitimate traffic.
+A **SYN flood attack** is a type of denial-of-service (DoS) attack that exploits the TCP three-way handshake by overwhelming a server with a high number of incomplete connection requests. This attack can exhaust server resources, making it unable to handle legitimate traffic (see <https://en.wikipedia.org/wiki/SYN_flood>).
 
 This project aims to detect and prevent SYN flood attacks at the network level by implementing a router-based mitigation system. The system operates in a Mininet-emulated topology and uses Scapy to analyze TCP traffic. By tracking packet behavior and employing dynamic IP blocking, the system effectively mitigates SYN flood attacks while maintaining the integrity of legitimate connections.
 
 ---
 
-### **2. Features Implemented**
+### **2. Implemented Features**
 
 1. **Router Script** (`router.py`):
    - Monitors TCP traffic for potential SYN flood attacks.
@@ -36,7 +36,7 @@ This project aims to detect and prevent SYN flood attacks at the network level b
    - Sends TCP RST packets to terminate malicious connections.
 
 2. **SYN Flood Attack Script** (`synflood.py`):
-   - Simulates a SYN flood attack by continuously sending spoofed SYN packets to the server.
+   - Simulates a SYN flood attack by continuously sending SYN packets to the server.
 
 3. **Legitimate TCP Client Script** (`client.py`):
    - Sends legitimate TCP connections to the server using the proper three-way handshake and gracefully terminates the connection.
