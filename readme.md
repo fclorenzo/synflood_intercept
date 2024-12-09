@@ -106,18 +106,18 @@ This project aims to detect and prevent SYN flood attacks at the network level b
      h1 python3 synflood.py
      ```
 
-5. **Run the Router Script**:
-   - On `r1`, run the `router.py` script to detect SYN floods:
-
-     ```bash
-     r1 python3 router.py
-     ```
-
-6. **Optional: Run the Legitimate TCP Connections Script**:
+5. **Optional: Run the Legitimate TCP Connections Script Instead of the SYN Flood Script**:
    - On `h1`, run the `client.py` script to send legitimate TCP connections:
 
      ```bash
      h1 python3 client.py
+     ```
+
+6. **Run the Router Script**:
+   - On `r1`, run the `router.py` script to detect SYN floods:
+
+     ```bash
+     r1 python3 router.py
      ```
 
 7. **Monitor Logs**:
