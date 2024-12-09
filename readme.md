@@ -1,4 +1,4 @@
-Here’s the updated README based on your base version and the suggestions you specified:
+You're right; the **How to Run** section is missing. Here's the updated README with the "How to Run" section added back in:
 
 ---
 
@@ -66,6 +66,52 @@ This project aims to detect and prevent SYN flood attacks at the network level b
 
 - **Root Privileges**:
   - Required to execute the router and attack scripts since they interact with the network stack.
+
+---
+
+### **4. How to Run**
+1. **Clone the Repository**:
+   - Navigate to the `custom` folder inside the Mininet VM and clone this repository:
+     ```bash
+     cd /home/mininet/mininet/custom
+     git clone https://github.com/fclorenzo/synflood_intercept.git
+     ```
+
+2. **Set Up Mininet Topology**:
+   - Launch the topology using the provided `topo.py` script:
+     ```bash
+     sudo python topo.py
+     ```
+   - This sets up a router (`r1`) and two hosts (`h1` and `h2`) connected via the router.
+
+3. **Start the TCP Server**:
+   - On `h2`, run the `server.py` script:
+     ```bash
+     h2 python server.py
+     ```
+
+4. **Simulate a SYN Flood Attack**:
+   - On `h1`, run the `synflood.py` script to launch a SYN flood attack:
+     ```bash
+     h1 python synflood.py
+     ```
+
+5. **Run the Router Script**:
+   - On `r1`, run the `router.py` script to detect SYN floods:
+     ```bash
+     r1 python router.py
+     ```
+
+6. **Optional: Run the Legitimate TCP Connections Script**:
+   - On `h1`, run the `client.py` script to send legitimate TCP connections:
+     ```bash
+     h1 python client.py
+     ```
+
+7. **Monitor Logs**:
+   - Observe the output on the router (`r1`) to see alerts, blocked IPs, and RST packet handling.
+   - Recommended: Redirect the output of each script to a file to observe the outputs of the different scripts after exiting the Mininet CLI or use xterm:
+     <https://mininet.org/walkthrough/#xterm-display-1>
 
 ---
 
