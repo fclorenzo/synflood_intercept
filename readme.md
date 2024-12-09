@@ -1,7 +1,3 @@
-You're right; the **How to Run** section is missing. Here's the updated README with the "How to Run" section added back in:
-
----
-
 ### **SYN Flood Detection and Prevention System**
 This repository contains a computer networks assignment project for detecting and mitigating SYN flood attacks at the network level using a custom Python implementation. The system is designed to run on a router configured in a Mininet topology and provides functionality to block malicious traffic while allowing legitimate connections to pass.
 
@@ -80,32 +76,32 @@ This project aims to detect and prevent SYN flood attacks at the network level b
 2. **Set Up Mininet Topology**:
    - Launch the topology using the provided `topo.py` script:
      ```bash
-     sudo python topo.py
+     sudo python3 topo.py
      ```
    - This sets up a router (`r1`) and two hosts (`h1` and `h2`) connected via the router.
 
 3. **Start the TCP Server**:
    - On `h2`, run the `server.py` script:
      ```bash
-     h2 python server.py
+     h2 python3 server.py
      ```
 
 4. **Simulate a SYN Flood Attack**:
    - On `h1`, run the `synflood.py` script to launch a SYN flood attack:
      ```bash
-     h1 python synflood.py
+     h1 python3 synflood.py
      ```
 
 5. **Run the Router Script**:
    - On `r1`, run the `router.py` script to detect SYN floods:
      ```bash
-     r1 python router.py
+     r1 python3 router.py
      ```
 
 6. **Optional: Run the Legitimate TCP Connections Script**:
    - On `h1`, run the `client.py` script to send legitimate TCP connections:
      ```bash
-     h1 python client.py
+     h1 python3 client.py
      ```
 
 7. **Monitor Logs**:
