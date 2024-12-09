@@ -1,14 +1,6 @@
 # README
 
-## **Improvements to Fix Links and Other Details**
-
-The Table of Contents (TOC) links need to be fixed to adhere to Markdown standards. The links in a TOC must correspond to the exact section headers, with spaces replaced by `-` and converted to lowercase. For example, a heading like `1. Introduction` becomes `#1-introduction`.
-
-Below is the updated README with corrected TOC links and additional minor fixes for consistency:
-
----
-
-### **SYN Flood Detection and Prevention System**
+## **SYN Flood Detection and Prevention System**
 
 This repository contains a computer networks assignment project for detecting and mitigating SYN flood attacks at the network level using a custom Python implementation. The system is designed to run on a router configured in a Mininet topology and provides functionality to block malicious traffic while allowing legitimate connections to pass.
 
