@@ -156,7 +156,7 @@ CHECK_INTERVAL = 1
    - A Mininet topology was configured with a router (`r1`), attacker (`h1`), and server (`h2`).
    - Scripts were run to simulate both SYN flood attacks and legitimate traffic.
    - The simulations were run by a fixed time period of 1 minute and a total of 5 times.
-   - Average values were extracted to measure the statistics.
+   - Average values were extracted to measure the statistics. The values below are approximations based on those average values.
 
 2. **Traffic Capture**:
    - Traffic was captured using `tcpdump` and analyzed using `tshark` to measure:
