@@ -8,13 +8,14 @@ This repository contains a computer networks assignment project for detecting an
 
 ### **Table of Contents**
 
-1. [Introduction](#1-introduction)
-2. [Implemented Features](#2-implemented-features)
-3. [System Requirements](#3-system-requirements)
-4. [How to Run](#4-how-to-run)
-5. [Configuration Parameters](#5-configuration-parameters)
-6. [Known Issues and Limitations](#6-known-issues-and-limitations)
-7. [Credits](#7-credits)
+1. [Introduction](#1-introduction)  
+2. [Implemented Features](#2-implemented-features)  
+3. [System Requirements](#3-system-requirements)  
+4. [How to Run](#4-how-to-run)  
+5. [Configuration Parameters](#5-configuration-parameters)  
+6. [Statistics and Performance](#6-statistics-and-performance)  
+7. [Known Issues and Limitations](#7-known-issues-and-limitations)  
+8. [Credits](#8-credits)  
 
 ---
 
@@ -28,102 +29,100 @@ This project aims to detect and prevent SYN flood attacks at the network level b
 
 ### **2. Implemented Features**
 
-1. **Router Script** (`router.py`):
-   - Monitors TCP traffic for potential SYN flood attacks.
-   - Tracks SYN and SYN-ACK packets for each source IP.
-   - Resets counts for legitimate connections when an ACK packet is received.
-   - Blocks malicious IPs that exceed a predefined SYN-to-SYN-ACK ratio threshold.
-   - Sends TCP RST packets to terminate malicious connections.
+1. **Router Script** (`router.py`):  
+   - Monitors TCP traffic for potential SYN flood attacks.  
+   - Tracks SYN and SYN-ACK packets for each source IP.  
+   - Resets counts for legitimate connections when an ACK packet is received.  
+   - Blocks malicious IPs that exceed a predefined SYN-to-SYN-ACK ratio threshold.  
+   - Sends TCP RST packets to terminate malicious connections.  
 
-2. **SYN Flood Attack Script** (`synflood.py`):
-   - Simulates a SYN flood attack by continuously sending SYN packets to the server.
+2. **SYN Flood Attack Script** (`synflood.py`):  
+   - Simulates a SYN flood attack by continuously sending SYN packets to the server.  
 
-3. **Legitimate TCP Client Script** (`client.py`):
-   - Sends legitimate TCP connections to the server using the proper three-way handshake and gracefully terminates the connection.
+3. **Legitimate TCP Client Script** (`client.py`):  
+   - Sends legitimate TCP connections to the server using the proper three-way handshake and gracefully terminates the connection.  
 
-4. **Server Script** (`server.py`):
-   - Hosts a simple TCP server to respond to incoming connections.
+4. **Server Script** (`server.py`):  
+   - Hosts a simple TCP server to respond to incoming connections.  
 
-5. **RST Packet Sniffer**:
-   - Integrated into the scripts to monitor for RST packets and validate the router's behavior.
+5. **RST Packet Sniffer**:  
+   - Integrated into the scripts to monitor for RST packets and validate the router's behavior.  
 
-6. **Mininet Topology Script** (`topo.py`):
+6. **Mininet Topology Script** (`topo.py`):  
    - Configures a Mininet topology with a router (`r1`) and two hosts (`h1` and `h2`) connected via the router.
 
 ---
 
 ### **3. System Requirements**
 
-- **Python**: Version 3.6 or higher.
-- **Scapy**: A Python library for packet manipulation. Install using:
+- **Python**: Version 3.6 or higher.  
+- **Scapy**: A Python library for packet manipulation. Install using:  
 
   ```bash
   pip install scapy
-  ```
+  ```  
 
-- **Mininet**: A network emulation tool. Download the virtual machine image at:
-  <https://github.com/mininet/mininet/releases/>
+- **Mininet**: A network emulation tool. Download the virtual machine image at:  
+  <https://github.com/mininet/mininet/releases/>  
 
-- **Virtualization Software**:
-  - Install software such as VirtualBox to run the Mininet virtual machine:
-    <https://www.virtualbox.org/wiki/Downloads>
+- **Virtualization Software**:  
+  - Install software such as VirtualBox to run the Mininet virtual machine:  
+    <https://www.virtualbox.org/wiki/Downloads>  
 
-- **Root Privileges**:
-  - Required to execute the router and attack scripts since they interact with the network stack.
+- **Root Privileges**:  
+  - Required to execute the router and attack scripts since they interact with the network stack.  
 
 ---
 
 ### **4. How to Run**
 
-1. **Clone the Repository**:
-   - Navigate to the `custom` folder inside the Mininet VM and clone this repository:
+1. **Clone the Repository**:  
+   Navigate to the `custom` folder inside the Mininet VM and clone this repository:  
 
-     ```bash
-     cd /home/mininet/mininet/custom
-     git clone https://github.com/fclorenzo/synflood_intercept.git
-     ```
+   ```bash
+   cd /home/mininet/mininet/custom
+   git clone https://github.com/fclorenzo/synflood_intercept.git
+   ```
 
-2. **Set Up Mininet Topology**:
-   - Launch the topology using the provided `topo.py` script:
+2. **Set Up Mininet Topology**:  
+   Launch the topology using the provided `topo.py` script:  
 
-     ```bash
-     sudo python3 topo.py
-     ```
+   ```bash
+   sudo python3 topo.py
+   ```
 
-   - This sets up a router (`r1`) and two hosts (`h1` and `h2`) connected via the router.
+3. **Start the TCP Server**:  
+   On `h2`, run the `server.py` script:  
 
-3. **Start the TCP Server**:
-   - On `h2`, run the `server.py` script:
+   ```bash
+   h2 python3 server.py
+   ```
 
-     ```bash
-     h2 python3 server.py
-     ```
+4. **Simulate a SYN Flood Attack**:  
+   On `h1`, run the `synflood.py` script to launch a SYN flood attack:  
 
-4. **Simulate a SYN Flood Attack**:
-   - On `h1`, run the `synflood.py` script to launch a SYN flood attack:
+   ```bash
+   h1 python3 synflood.py
+   ```
 
-     ```bash
-     h1 python3 synflood.py
-     ```
+5. **Optional: Run the Legitimate TCP Connections Script Instead of the SYN Flood Script**:  
+   On `h1`, run the `client.py` script to send legitimate TCP connections:  
 
-5. **Optional: Run the Legitimate TCP Connections Script Instead of the SYN Flood Script**:
-   - On `h1`, run the `client.py` script to send legitimate TCP connections:
+   ```bash
+   h1 python3 client.py
+   ```
 
-     ```bash
-     h1 python3 client.py
-     ```
+6. **Run the Router Script**:  
+   On `r1`, run the `router.py` script to detect SYN floods:  
 
-6. **Run the Router Script**:
-   - On `r1`, run the `router.py` script to detect SYN floods:
+   ```bash
+   r1 python3 router.py
+   ```
 
-     ```bash
-     r1 python3 router.py
-     ```
-
-7. **Monitor Logs**:
-   - Observe the output on the router (`r1`) to see alerts, blocked IPs, and RST packet handling.
-   - Recommended: Redirect the output of each script to a file to observe the outputs of the different scripts after exiting the Mininet CLI or use xterm:
-     <https://mininet.org/walkthrough/#xterm-display-1>
+7. **Monitor Logs**:  
+   - Observe the output on the router (`r1`) to see alerts, blocked IPs, and RST packet handling.  
+   - Recommended: Redirect the output of each script to a file to observe the outputs of the different scripts after exiting the Mininet CLI or use xterm:  
+     <https://mininet.org/walkthrough/#xterm-display-1>  
 
 ---
 
@@ -149,7 +148,46 @@ CHECK_INTERVAL = 1
 
 ---
 
-### **6. Known Issues and Limitations**
+### **6. Statistics and Performance**
+
+#### **Methodology**
+
+1. **Setup**:
+   - A Mininet topology was configured with a router (`r1`), attacker (`h1`), and server (`h2`).
+   - Scripts were run to simulate both SYN flood attacks and legitimate traffic.
+   - The simulations were run by a fixed time period of 1 minute and a total of 5 times.
+   - Average values were extracted to measure the statistics.
+
+2. **Traffic Capture**:
+   - Traffic was captured using `tcpdump` and analyzed using `tshark` to measure:
+     - Number of RST packets generated by the router.
+     - Total SYN packets sent during the test.
+     - Total network traffic volume.
+
+3. **Performance Metrics**:
+   - **RST-to-SYN Ratio**: Measures how many RST packets are generated per SYN packet.
+   - **Bandwidth Overhead**: Percentage of total network traffic generated by RST packets.
+
+#### **Findings**
+
+1. **RST-to-SYN Ratio**:
+   - The router generated ~2.87 RST packets for each SYN packet during the test period.
+
+2. **Bandwidth Overhead**:
+   - **63.1%** of the total bandwidth was consumed by RST packets, indicating a significant impact on network traffic.
+
+3. **Total Traffic Analysis**:
+   - **RST Packets**: 411
+   - **SYN Packets**: 143
+   - **RST Traffic Volume**: 28 KB (out of 45 KB total traffic)
+
+#### **Conclusion**
+
+The system effectively detects and blocks malicious SYN flood traffic but incurs a high bandwidth overhead due to the RST packet generation strategy. This trade-off is suitable for testing environments but not for real-world deployment.
+
+---
+
+### **7. Known Issues and Limitations**
 
 1. **Out-of-Order Packets**:
    - SYN and SYN-ACK packets arriving out of order may temporarily increase the SYN-to-SYN-ACK ratio, potentially causing false positives.
@@ -168,7 +206,7 @@ CHECK_INTERVAL = 1
 
 ---
 
-### **7. Credits**
+### **8. Credits**
 
 This project uses the following tools and technologies:
 
